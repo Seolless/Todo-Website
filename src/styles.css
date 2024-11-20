@@ -112,3 +112,11 @@ body {
 #closeMenu:hover {
   cursor: pointer;
 }
+.todo-checkbox {
+  width: 20px;
+  height: 20px;
+  background-color: aliceblue;
+}
+.checked {
+  background-color: rgb(0, 89, 255);
+}

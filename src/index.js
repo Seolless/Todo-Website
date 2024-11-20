@@ -32,6 +32,22 @@ class Todos {
       this.todoList = JSON.parse(localStorage.getItem("todoList"));
     }
   }
+  completeTodo(e, index) {
+    const project = e.target.parentNode.closest("ul");
+    const projectId = project.id.replace("project-", "");
+    for (let i = 0; i < this.todoList.length; i++) {
+      const element = this.todoList[i];
+      if (element.name == projectId) {
+        this.todoList[i].todos[index].isCompleted = this.todoList[i].todos[
+          index
+        ].isCompleted
+          ? false
+          : true;
+      }
+    }
+    this.saveTodos();
+    this.render();
+  }
   addProject() {
     const projectName = document.getElementById("createAssigned").value;
     let match = false;
@@ -183,7 +199,15 @@ class Todos {
 
           const todo = document.createElement("li");
           todo.classList.add("todo");
-          todo.innerHTML = `<div class="todoWrapper"><p>${element.title}</p><div class="todo-btns"><button id="edit-btn-${element.id}" class="edit-btn">Edit</button><button id="delete-btn-${element.id}" class="delete-btn">Delete</button></div></div>`;
+          todo.innerHTML = `<div class="todoWrapper"><div class="todo-checkbox ${
+            element.isCompleted ? "checked" : ""
+          }"></div><p>${
+            element.title
+          }</p><div class="todo-btns"><button id="edit-btn-${
+            element.id
+          }" class="edit-btn">Edit</button><button id="delete-btn-${
+            element.id
+          }" class="delete-btn">Delete</button></div></div>`;
           document.getElementById(`project-${project.name}`).appendChild(todo);
           const deleteButton = todo.querySelector(".delete-btn");
           deleteButton.addEventListener("click", (e) => {
@@ -191,6 +215,10 @@ class Todos {
           });
           const editButton = todo.querySelector(".edit-btn");
           editButton.addEventListener("click", (e) => this.renderEditMenu(e));
+          const todoCheckbox = todo.querySelector(".todo-checkbox");
+          todoCheckbox.addEventListener("click", (e) =>
+            this.completeTodo(e, element.id)
+          );
         }
       }
     }
