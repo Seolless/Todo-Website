@@ -78,7 +78,37 @@ body {
 .todo-menu {
   width: 800px;
   height: 600px;
-  background-color: #535353;
-  display: block;
+  background-color: #1e1d2c;
   margin: 100px auto 0px auto;
+  border: 2px solid white;
+  border-radius: 20px;
+  padding: 10px;
+}
+.input-field {
+  width: 100%;
+  height: 30px;
+  font-size: 20px;
+}
+.menu-section {
+  padding: 10px;
+  width: 600px;
+  margin: 0 auto;
+}
+.menu-text {
+  margin: 10px 0px;
+  color: white;
+}
+.flex {
+  display: flex;
+}
+.text-center {
+  text-align: center;
+}
+#closeMenu {
+  color: white;
+  float: right;
+  font-size: 20px;
+}
+#closeMenu:hover {
+  cursor: pointer;
 }
