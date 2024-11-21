@@ -120,3 +120,7 @@ body {
 .checked {
   background-color: rgb(0, 89, 255);
 }
+#createDescription {
+  resize: none;
+  height: 130px;
+}
