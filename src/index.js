@@ -92,7 +92,7 @@ class Todos {
   }
   removeTodo(e) {
     const projectEl = e.target.parentNode.closest("ul");
-    const projectId = project.id.replace("project-", "");
+    const projectId = projectEl.id.replace("project-", "");
     const index = e.target.id.replace("delete-btn-", "");
 
     this.todoList.forEach((project) => {
