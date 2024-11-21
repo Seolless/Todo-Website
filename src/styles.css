@@ -10,18 +10,26 @@ body {
 }
 #todoList {
   width: 100%;
-  height: 1000px;
   background-color: rgb(44, 43, 57);
+  padding: 20px 0px 20px 0px;
 }
 .todo {
   background-color: #221e2b;
   display: flex;
   margin: 10px auto;
-  width: 500px;
+  width: 550px;
   border: none;
   border-radius: 10px;
 }
+.todo-time {
+  margin: 16px 60px 16px auto;
+}
 .todoWrapper {
+  width: 100%;
+  height: 100%;
+  color: white;
+}
+.todoInnerWrapper {
   display: flex;
   align-items: center;
   width: 100%;
@@ -29,6 +37,21 @@ body {
   justify-content: space-between;
   margin: 0px 10px;
   color: white;
+}
+.todo-btns {
+  margin-right: 15px;
+}
+.expanded {
+  height: 100px;
+  width: 100%;
+  border-top: 1px solid #a7b9cc;
+}
+.description {
+  margin: 0px;
+  padding: 10px;
+}
+.mx-0 {
+  margin: 0;
 }
 .delete-btn {
   background-color: rgba(255, 0, 0, 0.2);
@@ -38,16 +61,23 @@ body {
   padding: 5px;
 }
 .project {
-  background: none;
+  background-color: rgb(56, 55, 71);
   width: 600px;
-  margin: 0 auto;
-  padding: 0px;
+  margin: 0px auto 40px auto;
+  padding: 10px;
+  border-bottom: 2px solid #a7b9cc;
+  border-radius: 10px;
+  border-top: 2px solid #a7b9cc;
+  box-shadow: 10px 10px #00000026;
 }
 .project-name {
   text-align: center;
   color: white;
   font-size: 24px;
-  margin: 0px;
+  margin: 0px auto;
+  width: 100px;
+  border-radius: 10px;
+  border-bottom: 2px solid #a7b9cc;
 }
 .edit-btn {
   background-color: #0003;
@@ -80,7 +110,7 @@ body {
   height: 600px;
   background-color: #1e1d2c;
   margin: 100px auto 0px auto;
-  border: 2px solid white;
+  border: 2px solid #a7b9cc;
   border-radius: 20px;
   padding: 10px;
 }
@@ -116,6 +146,7 @@ body {
   width: 20px;
   height: 20px;
   background-color: aliceblue;
+  margin-right: 20px;
 }
 .checked {
   background-color: rgb(0, 89, 255);
@@ -123,4 +154,26 @@ body {
 #createDescription {
   resize: none;
   height: 130px;
+}
+#todoMenuBtn {
+  border: 2px solid #a7b9cc;
+  color: white;
+  background-color: #221e2b;
+  border-radius: 10000px;
+  width: 140px;
+  height: 30px;
+  margin: 0 auto;
+  display: block;
+}
+#todoMenuBtn:hover {
+  cursor: pointer;
+}
+.edit-btn:hover {
+  cursor: pointer;
+}
+.delete-btn:hover {
+  cursor: pointer;
+}
+.todo-checkbox:hover {
+  cursor: pointer;
 }

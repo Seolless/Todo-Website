@@ -4,12 +4,14 @@ class Todos {
   constructor() {
     this.todoList = [];
     this.el = document.getElementById("todoList");
-    this.currentDate = Date.now();
   }
   init() {
     this.loadSave();
     this.render();
     this.assignEvents();
+    setInterval(() => {
+      this.updateTimers();
+    }, 1000);
   }
   assignEvents() {
     if (document.getElementById("createProject")) {
@@ -26,22 +28,56 @@ class Todos {
       this.todoList = JSON.parse(localStorage.getItem("todoList"));
     }
   }
+  getRemainingTime(expiryDate, expiryTime) {
+    let expiryDateTime;
+    const now = new Date();
+    if (expiryDate && expiryTime) {
+      expiryDateTime = new Date(`${expiryDate}T${expiryTime}`);
+    } else if (expiryDate) {
+      expiryDateTime = new Date(`${expiryDate}`);
+    } else if (expiryTime) {
+      //I have no clue why i had to add an extra month but whatever.
+      const nowDate = `${now.getFullYear()}-${
+        now.getMonth() + 1
+      }-${now.getDate()}`;
+      expiryDateTime = new Date(`${nowDate}T${expiryTime}`);
+    } else {
+      return "No Date";
+    }
+
+    const timeDifference = expiryDateTime - now;
+    if (timeDifference <= 0) {
+      return "Due";
+    }
+
+    const seconds = Math.floor((timeDifference / 1000) % 60);
+    const minutes = Math.floor((timeDifference / 1000 / 60) % 60);
+    const hours = Math.floor((timeDifference / (1000 * 60 * 60)) % 24);
+    const days = Math.floor(timeDifference / (1000 * 60 * 60 * 24));
+
+    if (days >= 1) {
+      return `${days} Days`;
+    } else if (hours) {
+      return `${hours}h ${minutes}m`;
+    } else if (minutes) {
+      return `${minutes}m ${seconds}s`;
+    }
+
+    return `${days}d ${hours}h ${minutes}m ${seconds}s`;
+  }
   completeTodo(e, index) {
-    const project = e.target.parentNode.closest("ul");
-    const projectId = project.id.replace("project-", "");
-    for (let i = 0; i < this.todoList.length; i++) {
-      const element = this.todoList[i];
-      if (element.name == projectId) {
-        this.todoList[i].todos[index].isCompleted = this.todoList[i].todos[
-          index
-        ].isCompleted
+    const projectEl = e.target.parentNode.closest("ul");
+    const projectId = projectEl.id.replace("project-", "");
+    this.todoList.forEach((project) => {
+      if (project.name == projectId) {
+        project.todos[index].isCompleted = project.todos[index].isCompleted
           ? false
           : true;
       }
-    }
-    console.log(JSON.stringify(this.todoList));
+    });
     this.saveTodos();
     this.render();
+    this.updateTimers();
   }
   addProject() {
     const projectName = document.getElementById("createAssigned").value;
@@ -59,6 +95,7 @@ class Todos {
         this.todoList.push(project);
         this.saveTodos();
         this.render();
+        this.updateTimers();
         console.log(`Added ${JSON.stringify(this.todoList)}`);
       } else {
         console.log("Project already exists");
@@ -86,8 +123,10 @@ class Todos {
         project.todos.push(todo);
         this.saveTodos();
         this.render();
+        this.updateTimers();
       }
     });
+
     this.closeMenu();
   }
   removeTodo(e) {
@@ -102,6 +141,7 @@ class Todos {
     });
     this.saveTodos();
     this.render();
+    this.updateTimers();
   }
   editTodo(index, projectName) {
     const title = document.getElementById("createTitle").value;
@@ -115,13 +155,41 @@ class Todos {
         project.todos[index].title = title;
         project.todos[index].description = description;
         project.todos[index].expiryDate = expiryDate;
-        project.todos[index].time = expiryTime;
+        project.todos[index].expiryTime = expiryTime;
         project.todos[index].priority = priority;
       }
     });
     this.closeMenu();
     this.saveTodos();
     this.render();
+    this.updateTimers();
+  }
+  updateTimers() {
+    this.todoList.forEach((project) => {
+      project.todos.forEach((todo, i) => {
+        const timer = document.getElementById(
+          `timer-${todo.assignedProject}-${i}`
+        );
+        const remainingTime = this.getRemainingTime(
+          todo.expiryDate,
+          todo.expiryTime
+        );
+        timer.innerHTML = remainingTime;
+      });
+    });
+  }
+  expandTodo(projectName, i) {
+    this.todoList.forEach((project) => {
+      if (project.name == projectName) {
+        project.todos[i].isExpanded = project.todos[i].isExpanded
+          ? false
+          : true;
+        console.log(project.todos[i]);
+        this.saveTodos();
+        this.render();
+        this.updateTimers();
+      }
+    });
   }
   closeMenu() {
     if (document.getElementById("editTodo")) {
@@ -211,7 +279,6 @@ class Todos {
     if (this.el.childNodes) {
       this.el.replaceChildren();
     }
-
     if (this.todoList.length == 0) {
       return;
     }
@@ -219,20 +286,37 @@ class Todos {
       const newProject = document.createElement("ul");
       newProject.id = `project-${project.name}`;
       newProject.classList.add("project");
-      newProject.innerHTML = `<p class="project-name">${project.name}</p><button id="todoMenuBtn">+</button>`;
+      newProject.innerHTML = `<p class="project-name">${project.name}</p>`;
       this.el.appendChild(newProject);
-      const menuButton = newProject.querySelector("#todoMenuBtn");
-      menuButton.addEventListener("click", (e) => this.renderCreateMenu(e));
 
       project.todos.forEach((element, i) => {
         const todo = document.createElement("li");
         todo.classList.add("todo");
-        todo.innerHTML = `<div class="todoWrapper"><div class="todo-checkbox ${
+        todo.id = `todo-${element.assignedProject}-${i}`;
+        todo.innerHTML = `<div class="todoWrapper">
+        <div class="todoInnerWrapper">
+        <div class="todo-checkbox ${
           element.isCompleted ? "checked" : ""
-        }"></div><p>${
-          element.title
-        }</p><div class="todo-btns"><button id="edit-btn-${i}" class="edit-btn">Edit</button><button id="delete-btn-${i}" class="delete-btn">Delete</button></div></div>`;
+        }"></div><p>${element.title}</p><p class="todo-time" id="timer-${
+          project.name
+        }-${i}"></p>
+          <div class="todo-btns">
+            <button id="edit-btn-${i}" class="edit-btn">Edit</button>
+            <button id="delete-btn-${i}" class="delete-btn">Delete</button>
+          </div>
+          </div>
+          <div class="${element.isExpanded ? "expanded" : ""}"><p class="${
+          element.isExpanded ? "description" : "mx-0"
+        }">${
+          element.description && element.isExpanded ? element.description : ""
+        }</p><div>
+        </div>`;
         document.getElementById(`project-${project.name}`).appendChild(todo);
+
+        todo.addEventListener("click", () =>
+          this.expandTodo(element.assignedProject, i)
+        );
+
         const deleteButton = todo.querySelector(".delete-btn");
         deleteButton.addEventListener("click", (e) => {
           this.removeTodo(e);
@@ -242,6 +326,12 @@ class Todos {
         const todoCheckbox = todo.querySelector(".todo-checkbox");
         todoCheckbox.addEventListener("click", (e) => this.completeTodo(e, i));
       });
+
+      const menuButton = document.createElement("button");
+      menuButton.id = "todoMenuBtn";
+      menuButton.innerHTML = "Create Todo";
+      newProject.appendChild(menuButton);
+      menuButton.addEventListener("click", (e) => this.renderCreateMenu(e));
     });
   }
 }
@@ -268,6 +358,7 @@ class Todo {
     this.expiryTime = expiryTime;
     this.assignedProject = assignedProject;
     this.isCompleted = false;
+    this.isExpanded = false;
   }
 }
 class Project {
