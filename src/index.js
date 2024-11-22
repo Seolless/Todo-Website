@@ -96,6 +96,7 @@ class Todos {
         this.saveTodos();
         this.render();
         this.updateTimers();
+        document.getElementById("createAssigned").value = "";
         console.log(`Added ${JSON.stringify(this.todoList)}`);
       } else {
         console.log("Project already exists");
@@ -104,12 +105,15 @@ class Todos {
   }
   //TODO:
   addTodo(projectId) {
-    const title = document.getElementById("createTitle").value;
+    let title = document.getElementById("createTitle").value;
     const description = document.getElementById("createDescription").value;
     const projectName = projectId;
     const expiryDate = document.getElementById("createDate").value;
     const expiryTime = document.getElementById("createTime").value;
     const priority = document.getElementById("createPriority").value;
+    if (!title) {
+      title = "New Todo";
+    }
     const todo = new Todo(
       title,
       description,
@@ -170,21 +174,43 @@ class Todos {
         const timer = document.getElementById(
           `timer-${todo.assignedProject}-${i}`
         );
-        const remainingTime = this.getRemainingTime(
-          todo.expiryDate,
-          todo.expiryTime
-        );
+        let remainingTime;
+        if (todo.isCompleted) {
+          remainingTime = "Completed!";
+        } else {
+          remainingTime = this.getRemainingTime(
+            todo.expiryDate,
+            todo.expiryTime
+          );
+        }
+
         timer.innerHTML = remainingTime;
       });
     });
   }
-  expandTodo(projectName, i) {
+  expandTodo(projectName, i, e) {
+    if (
+      e.target.classList.contains("edit-btn") ||
+      e.target.classList.contains("delete-btn") ||
+      e.target.classList.contains("todo-checkbox")
+    ) {
+      return;
+    }
     this.todoList.forEach((project) => {
       if (project.name == projectName) {
         project.todos[i].isExpanded = project.todos[i].isExpanded
           ? false
           : true;
-        console.log(project.todos[i]);
+        this.saveTodos();
+        this.render();
+        this.updateTimers();
+      }
+    });
+  }
+  deleteProject(projectName) {
+    this.todoList.forEach((project, i) => {
+      if (project.name == projectName) {
+        this.todoList.splice(i, 1);
         this.saveTodos();
         this.render();
         this.updateTimers();
@@ -286,8 +312,13 @@ class Todos {
       const newProject = document.createElement("ul");
       newProject.id = `project-${project.name}`;
       newProject.classList.add("project");
-      newProject.innerHTML = `<p class="project-name">${project.name}</p>`;
+      newProject.innerHTML = `<p class="project-name">${project.name}</p><button class="delete-project">Delete Project</button>`;
       this.el.appendChild(newProject);
+
+      const deleteProjectButton = newProject.querySelector(".delete-project");
+      deleteProjectButton.addEventListener("click", () =>
+        this.deleteProject(project.name)
+      );
 
       project.todos.forEach((element, i) => {
         const todo = document.createElement("li");
@@ -297,9 +328,9 @@ class Todos {
         <div class="todoInnerWrapper">
         <div class="todo-checkbox ${
           element.isCompleted ? "checked" : ""
-        }"></div><p>${element.title}</p><p class="todo-time" id="timer-${
-          project.name
-        }-${i}"></p>
+        }"></div><p class="${element.isCompleted ? "completed" : ""}">${
+          element.title
+        }</p><p class="todo-time" id="timer-${project.name}-${i}"></p>
           <div class="todo-btns">
             <button id="edit-btn-${i}" class="edit-btn">Edit</button>
             <button id="delete-btn-${i}" class="delete-btn">Delete</button>
@@ -309,12 +340,11 @@ class Todos {
           element.isExpanded ? "description" : "mx-0"
         }">${
           element.description && element.isExpanded ? element.description : ""
-        }</p><div>
-        </div>`;
+        }</p>`;
         document.getElementById(`project-${project.name}`).appendChild(todo);
 
-        todo.addEventListener("click", () =>
-          this.expandTodo(element.assignedProject, i)
+        todo.addEventListener("click", (e) =>
+          this.expandTodo(element.assignedProject, i, e)
         );
 
         const deleteButton = todo.querySelector(".delete-btn");
@@ -336,9 +366,6 @@ class Todos {
   }
 }
 
-document
-  .getElementById("clear")
-  .addEventListener("click", () => localStorage.removeItem("todoList"));
 const todoApp = new Todos();
 todoApp.init();
 

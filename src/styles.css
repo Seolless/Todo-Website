@@ -49,6 +49,8 @@ body {
 .description {
   margin: 0px;
   padding: 10px;
+  overflow-y: scroll;
+  max-height: 70px;
 }
 .mx-0 {
   margin: 0;
@@ -75,9 +77,7 @@ body {
   color: white;
   font-size: 24px;
   margin: 0px auto;
-  width: 100px;
-  border-radius: 10px;
-  border-bottom: 2px solid #a7b9cc;
+  width: 100%;
 }
 .edit-btn {
   background-color: #0003;
@@ -176,4 +176,18 @@ body {
 }
 .todo-checkbox:hover {
   cursor: pointer;
+}
+.delete-project {
+  height: 20px;
+  width: 100px;
+  position: relative;
+  top: -30px;
+  right: -500px;
+  background-color: rgba(255, 0, 0, 0.2);
+  border: none;
+  color: white;
+  border-radius: 10px;
+}
+.completed {
+  text-decoration: line-through;
 }
