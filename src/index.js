@@ -59,11 +59,9 @@ class Todos {
       return `${days} Days`;
     } else if (hours) {
       return `${hours}h ${minutes}m`;
-    } else if (minutes) {
+    } else {
       return `${minutes}m ${seconds}s`;
     }
-
-    return `${days}d ${hours}h ${minutes}m ${seconds}s`;
   }
   completeTodo(e, index) {
     const projectEl = e.target.parentNode.closest("ul");
@@ -197,10 +195,15 @@ class Todos {
       return;
     }
     this.todoList.forEach((project) => {
-      if (project.name == projectName) {
+      if (project.name == projectName && project.todos[i].description != "") {
         project.todos[i].isExpanded = project.todos[i].isExpanded
           ? false
           : true;
+        this.saveTodos();
+        this.render();
+        this.updateTimers();
+      } else {
+        project.todos[i].isExpanded = false;
         this.saveTodos();
         this.render();
         this.updateTimers();
